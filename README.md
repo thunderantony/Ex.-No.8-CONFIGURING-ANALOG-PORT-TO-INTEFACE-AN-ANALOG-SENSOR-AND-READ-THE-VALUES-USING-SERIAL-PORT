@@ -1,166 +1,139 @@
-**** 
+# EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER
+
+### Aim:
+To generate a PWM wave at the timer pin output and  simuate it on  proteus using an virtual oscilloscope  
+
+### Components required:
+STM32 CUBE IDE, Proteus 8 simulator .
+
+### Theory:
+
+The timer modules can operate a variety of modes one of which is the PWM mode. Where the timer gets clocked from an internal source and counts up to the auto-reload register value, then the output channel pin is driven HIGH. And it remains until the timer counts reach the CCRx register value, the match event causes the output channel pin to be driven LOW. And it remains until the timer counts up to the auto-reload register value, and so on.
+
+The resulting waveform is called PWM (pulse-width modulated) signal. Whose frequency is determined by the internal clock, the Prescaler, and the ARRx register. And its duty cycle is defined by the channel CCRx register value. The PWM doesn’t always have to be following this exact same procedure for PWM generation, however, it’s the very basic one and the easier to understand the concept. It’s called the up-counting PWM mode. We’ll discuss further advanced PWM generation techniques as we go on in this series of tutorials.
+
+The following diagram shows you how the ARR value affects the period (frequency) of the PWM signal. And how the CCRx value affects the corresponding PWM signal’s duty cycle. And illustrates the whole process of PWM signal generation in the up-counting normal mode.
+
+STM32 Timers – PWM Output Channels
+
+Each Capture/Compare channel is built around a capture/compare register (including a shadow register), an input stage for capture (with a digital filter, multiplexing, and Prescaler) and an output stage (with comparator and output control). The output stage generates an intermediate waveform which is then used for reference: OCxRef (active high). The polarity acts at the end of the chain.
+![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/87457b57-4311-440b-8cbe-a9d78db4335a)
+
+STM32 Timers In PWM Mode
+
+Pulse width modulation mode allows generating a signal with a frequency determined by the value of the TIMx_ARR register and a duty cycle determined by the value of the TIMx_CCRx register. The PWM mode can be selected independently on each channel (one PWM per OCx output) by writing 110 (PWM mode 1) or ‘111 (PWM mode 2) in the OCxM bits in the TIMx_CCMRx register. The user must enable the corresponding preload register by setting the OCxPE bit in the TIMx_CCMRx register, and eventually the auto-reload preload register by setting the ARPE bit in the TIMx_CR1 register.
+
+OCx polarity is software programmable using the CCxP bit in the TIMx_CCER register. It can be programmed as active high or active low. For applications where you need to generate complementary PWM signals, this option will be suitable for you.
+
+In PWM mode (1 or 2), TIMx_CNT and TIMx_CCRx are always compared to determine whether TIMx_CCRx≤TIMx_CNT or TIMx_CNT≤TIMx_CCRx (depending on the direction of the counter).
+
+The timer is able to generate PWM in edge-aligned mode or center-aligned mode depending on the CMS bits in the TIMx_CR1 register.
+STM32 PWM Frequency
+
+In various applications, you’ll be in need to generate a PWM signal with a specific frequency. In servo motor control, LED drivers, motor drivers, and many more situations where you’ll be in need to set your desired frequency for the output PWM signal.
+
+The PWM period (1/FPWM) is defined by the following parameters: ARR value, the Prescaler value, and the internal clock itself which drives the timer module FCLK. The formula down below is to be used for calculating the FPWM for the output. You can set the clock you’re using, the Prescaler, and solve for the ARR value in order to control the FPWM and get what you want.
+
+STM32 PWM Frequency Formula - STM32 PWM Frequency Equation
+![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/aca8a20e-9b99-40c1-bada-f31accaa2ae9)
+
+STM32 PWM Duty Cycle
+
+In normal settings, assuming you’re using the timer module in PWM mode and generating PWM signal in edge-aligned mode up-counting configuration. The duty cycle percentage is controlled by changing the value of the CCRx register. And the duty cycle equals (CCRx/ARR) [%].
+![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/58ce0807-331e-49f7-bc8d-373f82592a92)
 
 
-### Ex. No. :8 CONFIGURING ANALOG PORT TO INTEFACE AN ANALOG SENSOR AND READ THE VALUES USING SERIAL PORT
-## Date: 
-###  
 
-## Aim: 
-To configure ADC channel for interfacing an analog sensor and read the values on the com port 
-## Components required:
-STM 32 CUBE IDE , STM32 NUCLEO BOARD, CONNECTING CABLE, SERIAL PORT UTILITY , ANALOG SENSOR - 3.3V TYPE 
- ## Theory 
+## Procedure:
+Step1: Open CubeMX & Create New Project
+ ![image](https://user-images.githubusercontent.com/36288975/226189166-ac10578c-c059-40e7-8b80-9f84f64bf088.png)
+
+
+Step2: Choose The Target MCU & Double-Click Its Name select the target to be programmed  as shown below and click on next 
+
+ ![image](https://user-images.githubusercontent.com/36288975/226189215-2d13ebfb-507f-44fc-b772-02232e97c0e3.png)
+![image](https://user-images.githubusercontent.com/36288975/226189230-bf2d90dd-9695-4aaf-b2a6-6d66454e81fc.png)
+
+![image](https://user-images.githubusercontent.com/36288975/226189280-ed5dcf1d-dd8d-43ae-815d-491085f4863b.png)
+
+Step3: Configure Timer2 Peripheral To Operate In PWM Mode With CH1 Output
+![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/682c851a-7dfe-4089-8395-f76088d43896)
+
+
+Step4: Set The RCC External Clock Source
+![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/8888af3b-63e2-4760-a51b-17b477763941)
+
+
+STM32 RCC External Clock Selection CubeMX
+
+Step5: Go To The Clock Configuration
+
+Step6: Set The System Clock To Be 72MHz
+![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/4ea03faa-fb90-4b31-8079-3db5f959f2c3)
+
+
+Step7: Name & Generate The Project Initialization Code For CubeIDE or The IDE You’re Using
+
+
+
+Step8.  Creating Proteus project and running the simulation
+We are now at the last part of step by step guide on how to simulate STM32 project in Proteus.
+
+Step9. Create a new Proteus project and place STM32F40xx i.e. the same MCU for which the project was created in STM32Cube IDE. 
+14. After creation of the circuit as per requirement as shown below 
+
+ ![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/4f377f5e-bdda-489e-a416-c712c893831d)
+
+Step10. Double click on the the MCU part to open settings. Next to the Program File option, give full path to the Hex file generated using STM32Cube IDE. Then set the external crystal frequency to 8M (i.e. 8 MHz). Click OK to save the changes.
 
  
-ADCs are characterized by:
+Step14. click on debug and simulate using simulation as shown below 
+ ![image](https://github.com/vasanthkumarch/EXPERIMENT--07-SQUARE-WAVE-GENERATION-AT-THE-OUTPUT-PIN-USING-TIMER/assets/36288975/b8efbfc2-f0c5-4106-8117-3a6e7ac87f6c)
 
-Resolution [bit]: the number of bits to represent a digital signal.
-Sampling rate [Hz]: how fast they work.
-
-ADC Symbol. 
-An 10-bit ADC with 1 kHz sampling rate has 256 (2⁸) levels in its digital signal and takes 1 millisecond to convert an analog signal into its digital form.
-![image](https://github.com/vasanthkumarch/Ex.-No.8-CONFIGURING-ANALOG-PORT-TO-INTEFACE-AN-ANALOG-SENSOR-AND-READ-THE-VALUES-USING-SERIAL-PORT/assets/36288975/bdbe1fe6-6913-46ca-aefd-726b6a406cf6)
-
-An analog signal is expressed in voltage [V] and other important features are:
-
-Full-scale voltage: the maximum input voltage value convertible into digital.
-Voltage resolution (Quantum): equal to its full-scale voltage divided by the number of levels.
-An 8-bit ADC with 3.3V of full-scale voltage has a quantum equal to: 3.3V / 256 levels = 12.9mV.
-The quantum is the minimum voltage value that ADC can discretize. When an analog value being sampled falls between two digital levels the analog signal will be represented by the nearest digital value. This causes a very slight error called “quantization error”.
-
-Different Ways To Read STM32 ADC   
- 
-
-1 – The Polling Method
-
-It’s the easiest way in code in order to perform an analog to digital conversion using the ADC on an analog input channel. However, it’s not an efficient way in all cases as it’s considered to be a blocking way of using the ADC. As in this way, we start the A/D conversion and wait for the ADC until it completes the conversion so the CPU can resume processing the main code.
-
-2 – The Interrupt Method
-
-The interrupt method is an efficient way to do ADC conversion in a non-blocking manner, so the CPU can resume executing the main code routine until the ADC completes the conversion and fires an interrupt signal so the CPU can switch to the ISR context and save the conversion results for further processing.
-
-However, when you’re dealing with multiple channels in a circular mode or so, you’ll have periodic interrupts from the ADC that are too much for the CPU to handle. This will introduce jitter injection and interrupt latency and all sorts of timing issues to the system. This can be avoided by using DMA.
-
-3 – The DMA Method
-
-Lastly, the DMA method is the most efficient way of converting multiple ADC channels at very high rates and still transfers the results to the memory without CPU intervention which is so cool and time-saving technique.
 
  
 
-The STM32 Nucleo Board
-The STM32 development board in use belongs to the NUCLEO family: the NUCLEO-G431RB is equipped with an STM32G431RB microcontroller, led, buttons, and connectors (Arduino shield compatible). It provides an easy and fast way to build prototypes.
-
-
-STM32 NUCLEO-G431RB development board.  
-The STM32G071RB is a mainstream ARM Cortex-M4 microcontroller with 128KB flash memory, most common communication interfaces (I2C, SPI, UART, …), and peripherals (ADC, DAC, PWM, Timer, …).
-
-
-SOIL MOISTURE SENSOR 
-Calculations
-Capacity is calculated using the following expression:
-
-
-
-Let the plates have dimensions  w  = 12 mm; l  = 35 mm, then the area S  = 12*35 = 420 mm², and the distance between them d  = 3 mm, then the calculated electrical capacitance C =  1 pF .
-
-Capacitance calculation (dielectric: air)
-The geometric dimensions (area) S , as well as the distance between the plates d , do not change. To change the capacitance, it remains to change the substance between the plates, as long as it is air ε = 1 . What do you think? relative dielectric constant  of water ? Sources show ε = 81 .
-
-Capacitance calculation (dielectric: water)
-Full immersion in water will increase the capacity by 81 times ! The calculated capacitance C will no longer be 1 pF, but  100 pF .
-
-
-
-Thus, by smoothly immersing this homemade condenser, the capacity will also smoothly and proportionally change, which makes it possible to effectively monitor the state of humidity.
-
-Converting a change in capacitance into a change in voltage
-By connecting a capacitor in series with a resistor, we obtain a low-pass filter ( LPF ).
-
-
-
-This results in a voltage divider where the resistance of the upper arm R1 does not change, but the capacitance of the lower arm C1 changes depending on the frequency.
-
-
-
-But since the signal frequency will remain unchanged, we will plot the dependence of capacitance on capacitance ( C = 1-100 pF):
   
 
-  
- ## Procedure:
-
-Open STM32CubeIDE Software and go to File → New… → STM32 Project.
-Click on Board Selector and select NUCLEO-G431RB in the dropdown menu.
-
-Board selector section. Image by author.
-Insert a project name and select STM32Cube as Targeted Project Type.
-
-Setup STM32 project. Image by author.
-After creating the project, a page will appear showing all the necessary features needed to configure the MCU.
-
-STM32Cube device configuration. 
-The STM32G071RB has 2 ADCs (named ADC1 and ADC2) with a maximum sampling rate of 4MHz (0.25us) and up to 19 multiplexed channels. Resolution of 12-bit with a full-scale voltage range of up to 3.6V.
-With channels, it is possible to organize the conversions in a group. A group consists of a sequence of conversions that can be done on any channel and in any order, also with different sampling rates.
-
-The Analog connector of the development board is connected to pins: PA0, PA1, PA4, PB0, PC1, and PC0 of the microcontroller.
-![image](https://github.com/vasanthkumarch/Ex.-No.8-CONFIGURING-ANALOG-PORT-TO-INTEFACE-AN-ANALOG-SENSOR-AND-READ-THE-VALUES-USING-SERIAL-PORT/assets/36288975/152f51fd-f09b-4d65-8744-9492c86f1720)
-
-Pinout of the analog connector — NUCLEO-G071RB. .
-The potentiometer is wired to the PA0 pin and so the ADC1 Channel 0 (ADC1_IN0) will be used to convert the analog value.
-
-Open the Pinout&Configuration tab and click on Analog → ADC1 in the Categories section.
-In the channel 1 (IN0) dropdown menu select Single-ended.
-The ADC can be configured to measure the voltage difference between one pin and the ground (Single-ended configuration) or between two pins (Differential configuration).
-![image](https://github.com/vasanthkumarch/Ex.-No.8-CONFIGURING-ANALOG-PORT-TO-INTEFACE-AN-ANALOG-SENSOR-AND-READ-THE-VALUES-USING-SERIAL-PORT/assets/36288975/84e5114c-ff8b-4058-8ad7-760bcf06f931)
-
-ADC1 mode panel.  
-Leave the ADC1 Configuration panel with the default values and save the project.
-* Clock prescaler: Synchronous clock mode divided by 4
-ADC Clock derives from the system clock (SYCLK) that is set to the maximum frequency: 170MHz.
-Divide by 4 means to set the maximum ADC sampling frequency (170MHz/4 = 42.5MHz).
-* Resolution: ADC 10-bit resolution
-Output digital signal has 1024 levels. The voltage full-scale range is equal to the microcontroller supply voltage (3.3V).
-
-ADC1 configuration panel.  .
-After saving the configuration, the STM32CubeIDE will generate all the project files according to the user inputs.
-
-The soil moisture sensor is one kind of sensor used to gauge the volumetric content of water within the soil. As the straight gravimetric dimension of soil moisture needs eliminating, drying, as well as sample weighting. These sensors measure the volumetric water content not directly with the help of some other rules of soil like dielectric constant, electrical resistance, otherwise interaction with neutrons, and replacement of the moisture content.
-
-The relation among the calculated property as well as moisture of soil should be adjusted & may change based on ecological factors like temperature, type of soil, otherwise electric conductivity. The microwave emission which is reflected can be influenced by the moisture of soil as well as mainly used in agriculture and remote sensing within hydrology.
+## STM 32 CUBE PROGRAM :
 
 
-soil-moisture-sensor-device
-soil-moisture-sensor-device
-These sensors normally used to check volumetric water content, and another group of sensors calculates a new property of moisture within soils named water potential. Generally, these sensors are named as soil water potential sensors which include gypsum blocks and tensiometer.
-
-Soil Moisture Sensor Pin Configuration
-The FC-28 soil moisture sensor includes 4-pins
-![image](https://github.com/vasanthkumarch/Ex.-No.8-CONFIGURING-ANALOG-PORT-TO-INTEFACE-AN-ANALOG-SENSOR-AND-READ-THE-VALUES-USING-SERIAL-PORT/assets/36288975/14ce9ba1-6f2e-4080-adee-bfb695123d34)
-
-soil-moisture-sensor
-soil-moisture-sensor
 
 
-![image](https://github.com/vasanthkumarch/Ex.-No.8-CONFIGURING-ANALOG-PORT-TO-INTEFACE-AN-ANALOG-SENSOR-AND-READ-THE-VALUES-USING-SERIAL-PORT/assets/36288975/7ae64062-717c-4b18-b5c8-3664f229d2d5)
 
-VCC pin is used for power
-A0 pin is an analog output
-D0 pin is a digital output
-GND pin is a Ground
-This module also includes a potentiometer that will fix the threshold value, & the value can be evaluated by the comparator-LM393. The LED will turn on/off based on the threshold value.
-
-
-##  Program 
-
-
+## Output screen shots of proteus  :
  
+ 
+ ## CIRCUIT DIAGRAM (EXPORT THE GRAPHICS TO PDF AND ADD THE SCREEN SHOT HERE): 
+ 
+
+## DUTY CYCLE AND FREQUENCY CALCULATION 
+FOR PULSE AT 500
+
+TON = 
+TOFF=
+TOTAL TIME = 
+FREQUENCY = 1/(TOTAL TIME)
+
+FOR PULSE AT 700
+
+TON = 
+TOFF=
+TOTAL TIME = 
+FREQUENCY = 1/(TOTAL TIME)
+
+
+FOR PULSE AT 900
+
+TON = 
+TOFF=
+TOTAL TIME = 
+FREQUENCY = 1/(TOTAL TIME)
+
 
 ## Result :
- 
-## Output  :
+A PWM Signal is generated using the following frequency and various duty cycles are simulated 
 
 
 
 
-
-
-****
